@@ -3,6 +3,7 @@ import './App.css'
 import Login from './components/Login'
 import Home from './components/Home'
 import Cadastro from './components/Cadastro'
+import InicialPage from './components/InicialPage'
 
 function App() {
 
@@ -10,7 +11,8 @@ function App() {
     <>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home/>} />
+        <Route path="/" element={<InicialPage/>}/>
+        <Route path="/home" element={<Home/>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/cadastro" element={<Cadastro/>} />
         <Route path="*" element={<h1>Not Found </h1>} />
