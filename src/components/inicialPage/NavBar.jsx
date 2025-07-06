@@ -12,10 +12,10 @@ function NavBar() {
                     <img src={logo} class="w-auto h-10" alt="Eplayoffs Logo" />
 
                     <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-                        <Link to={"/login"}><button type="button" class="text-red-600 bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 mx-3 text-center dark:bg-black dark:hover:bg-red-700 dark:hover:text-white dark:focus:ring-red-800">Entrar</button>
+                        <Link to={"/login"}><button type="button" class="text-red-600 bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 mx-3 text-center dark:bg-black dark:hover:bg-red-700 dark:hover:text-white dark:focus:ring-red-800 cursor-pointer">Entrar</button>
                         </Link>
 
-                        <Link to={"/cadastro"}><button type="button" class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-red-700 dark:hover:bg-red-900 dark:focus:ring-red-800">Cadastre-se</button>
+                        <Link to={"/cadastro"}><button type="button" class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-red-700 dark:hover:bg-red-900 dark:focus:ring-red-800 cursor-pointer">Cadastre-se</button>
                         </Link>
                         <button data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-sticky" aria-expanded="false">
                             <span class="sr-only">Open main menu</span>
