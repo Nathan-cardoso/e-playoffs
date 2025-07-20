@@ -1,25 +1,49 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import './App.css'
-import Login from './components/login/Login'
-import Home from './components/home/Home'
-import Cadastro from './components/cadastro/Cadastro'
-import InicialPage from './components/inicialPage/InicialPage'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import './App.css';
+import Login from './components/login/Login';
+import Home from './components/home/Home';
+import Cadastro from './components/cadastro/Cadastro';
+import InicialPage from './components/inicialPage/InicialPage';
+import Logout from './components/logout/Logout';
+import PrivateRouter from './components/protect/PrivateRouter';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
-
   return (
-    <>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<InicialPage/>}/>
-        <Route path="/home" element={<Home/>} />
-        <Route path="/login" element={<Login/>} />
-        <Route path="/cadastro" element={<Cadastro/>} />
-        <Route path="*" element={<h1>Not Found </h1>} />
-      </Routes>
-    </BrowserRouter>
-    </>
-  )
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<InicialPage/>}/>
+          <Route path="/login" element={<Login/>} />
+          <Route path="/cadastro" element={<Cadastro/>} />
+          <Route path="/logout" element={<Logout/>} />
+          <Route path="*" element={<h1>Not Found</h1>} />
+          
+          {/* Rotas Protegidas */}
+          <Route path="/home" element={
+            <PrivateRouter>
+              <Home />
+            </PrivateRouter>
+          } />
+          <Route path="/perfil" element={
+            <PrivateRouter>
+              <h1>Profile</h1>
+            </PrivateRouter>
+          } />
+          <Route path="/torneios" element={
+            <PrivateRouter>
+              <h1>Torneios</h1>
+            </PrivateRouter>
+          } />
+          <Route path="/criar-torneio" element={
+            <PrivateRouter>
+              <h1>Criar Torneios</h1>
+            </PrivateRouter>
+          } />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;

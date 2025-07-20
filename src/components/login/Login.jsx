@@ -1,13 +1,15 @@
 import React from 'react'
 import logo from '../../../public/imgs/logo.png';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from "../../contexts/AuthContext";
 
-function Login() {
+function Login(){
   const [username, setusername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const navigate = useNavigate();
+  const { setAuthenticatedUser } = useAuth(); // Adicione esta linha
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,16 +24,16 @@ function Login() {
       });
 
       if (!response.ok) {
-        throw new Error('Login falhou');
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Login falhou');
       }
 
       const data = await response.json();
 
-      // Supondo que o backend retorne { access: '...', refresh: '...' }
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
 
-      // Redireciona para a Home
+      setAuthenticatedUser(); // Atualiza o estado de autenticação
       navigate('/home');
 
     } catch (err) {
