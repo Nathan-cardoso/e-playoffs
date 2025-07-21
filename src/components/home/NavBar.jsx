@@ -15,26 +15,26 @@ function NavBar() {
   const { logout } = useAuth();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/v1/player/', {
-          headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-          }
-        });
-        
-        setUser({
-          username: response.data.username,
-          email: response.data.email,
-          photo: response.data.photo === null ? profile : response.data.photo
-        });
-      } catch (error) {
-        console.error('Erro ao buscar dados do usuário:', error);
-        if (error.response?.status === 401) {
-          logout();
-        }
+const fetchUserData = async () => {
+  try {
+    const response = await axios.get('http://localhost:8000/api/v1/players/me/', {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
       }
-    };
+    });
+    
+    setUser({
+      username: response.data.username,
+      email: response.data.email,
+      photo: response.data.profile_image_url || profile
+    });
+  } catch (error) {
+    console.error('Erro ao buscar dados do usuário:', error);
+    if (error.response?.status === 401) {
+      logout();
+    }
+  }
+};
 
     fetchUserData();
   }, [logout]);

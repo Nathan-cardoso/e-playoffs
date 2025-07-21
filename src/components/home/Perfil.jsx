@@ -39,33 +39,33 @@ function Perfil() {
   }, []);
 
   const fetchUserData = async () => {
-    try {
-      const response = await axios.get('http://localhost:8000/api/v1/perfil-player/', {
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-        }
-      });
-      
-      setUser(response.data);
-      setFormData({
-        username: response.data.username,
-        email: response.data.email,
-        profile_image: response.data.profile_image,
-        bio: response.data.bio || '',
-        instagram: response.data.instagram || '',
-        x: response.data.x || '',
-        youtube: response.data.youtube || '',
-        twitch: response.data.twitch || ''
-      });
-      setLoading(false);
-    } catch (error) {
-      console.error('Erro ao buscar dados do usuário:', error);
-      if (error.response?.status === 401) {
-        logout();
+  try {
+    const response = await axios.get('http://localhost:8000/api/v1/players/me/', {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
       }
-      setLoading(false);
+    });
+    
+    setUser(response.data);
+    setFormData({
+      username: response.data.username,
+      email: response.data.email,
+      profile_image: response.data.profile_image,
+      bio: response.data.bio || '',
+      instagram: response.data.instagram || '',
+      x: response.data.x || '',
+      youtube: response.data.youtube || '',
+      twitch: response.data.twitch || ''
+    });
+    setLoading(false);
+  } catch (error) {
+    console.error('Erro ao buscar dados do usuário:', error);
+    if (error.response?.status === 401) {
+      logout();
     }
-  };
+    setLoading(false);
+  }
+};
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -122,44 +122,47 @@ function Perfil() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = async () => {
-    if (!validateForm()) {
-      return;
+const handleSave = async () => {
+  if (!validateForm()) {
+    return;
+  }
+
+  setSaving(true);
+  try {
+    const formDataToSend = new FormData();
+    formDataToSend.append('username', formData.username);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('bio', formData.bio || '');
+    formDataToSend.append('instagram', formData.instagram || '');
+    formDataToSend.append('x', formData.x || '');
+    formDataToSend.append('youtube', formData.youtube || '');
+    formDataToSend.append('twitch', formData.twitch || '');
+    
+    if (formData.profile_image && formData.profile_image instanceof File) {
+      formDataToSend.append('profile_image', formData.profile_image);
+    } else if (formData.profile_image === null) {
+      formDataToSend.append('clear_profile_image', 'true');
     }
 
-    setSaving(true);
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('username', formData.username);
-      formDataToSend.append('email', formData.email);
-      formDataToSend.append('bio', formData.bio);
-      formDataToSend.append('instagram', formData.instagram);
-      formDataToSend.append('x', formData.x);
-      formDataToSend.append('youtube', formData.youtube);
-      formDataToSend.append('twitch', formData.twitch);
-      
-      if (formData.profile_image && formData.profile_image instanceof File) {
-        formDataToSend.append('profile_image', formData.profile_image);
+    // Corrigindo o endpoint - removendo a barra extra
+    const response = await axios.put('http://localhost:8000/api/v1/players/me/', formDataToSend, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+        'Content-Type': 'multipart/form-data'
       }
+    });
 
-      const response = await axios.put('http://localhost:8000/api/v1/perfil-player/', formDataToSend, {
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      setUser(response.data);
-      setIsEditing(false);
-      setSaving(false);
-    } catch (error) {
-      console.error('Erro ao atualizar perfil:', error);
-      if (error.response?.data) {
-        setErrors(error.response.data);
-      }
-      setSaving(false);
+    setUser(response.data);
+    setIsEditing(false);
+  } catch (error) {
+    console.error('Erro ao atualizar perfil:', error);
+    if (error.response?.data) {
+      setErrors(error.response.data);
     }
-  };
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleCancel = () => {
     setFormData({

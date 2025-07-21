@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Calendar, Users, Trophy, Filter, DollarSign } from 'lucide-react';
 import Sidebar from './Sidebar';
 import NavBar from './NavBar';
-// import axios from 'axios';
+import axios from 'axios';
 
 const TournamentSearchPage = () => {
   const [tournaments, setTournaments] = useState([]);
@@ -21,100 +21,27 @@ const TournamentSearchPage = () => {
     'Dragon Ball FighterZ'
   ];
 
-  // Dados mock dos torneios (simula a resposta da API)
-  const mockTournaments = [
-    {
-      id: 1,
-      name: 'Campeonato Regional LoL',
-      description: 'Torneio regional de League of Legends para jogadores de todos os níveis.',
-      game: 'League of Legends',
-      date_start: '2025-08-15',
-      created_at: '2025-07-10T10:00:00Z',
-      owner: { username: 'admin_user', id: 1 },
-      participants_count: 24,
-      public: true,
-      value: 1500.00,
-      server_discord: 'https://discord.gg/example1'
-    },
-    {
-      id: 2,
-      name: 'Copa Valorant Brasil',
-      description: 'Competição nacional de Valorant com premiação em dinheiro.',
-      game: 'Valorant',
-      date_start: '2025-09-01',
-      created_at: '2025-07-12T14:30:00Z',
-      owner: { username: 'tournament_org', id: 2 },
-      participants_count: 32,
-      public: true,
-      value: 2500.00,
-      server_discord: 'https://discord.gg/example2'
-    },
-    {
-      id: 3,
-      name: 'Torneio CS:GO Pro',
-      description: 'Torneio profissional de Counter-Strike: Global Offensive.',
-      game: 'CS:GO',
-      date_start: '2025-08-30',
-      created_at: '2025-07-15T16:45:00Z',
-      owner: { username: 'esports_admin', id: 3 },
-      participants_count: 16,
-      public: true,
-      value: 3000.00,
-      server_discord: null
-    },
-    {
-      id: 4,
-      name: 'FIFA Championship',
-      description: 'Campeonato de FIFA 24 para jogadores amadores e profissionais.',
-      game: 'FIFA',
-      date_start: '2025-08-20',
-      created_at: '2025-07-18T09:15:00Z',
-      owner: { username: 'fifa_master', id: 4 },
-      participants_count: 48,
-      public: true,
-      value: 800.00,
-      server_discord: 'https://discord.gg/example4'
-    },
-    {
-      id: 5,
-      name: 'Dragon Ball FighterZ Arena',
-      description: 'Torneio de luta épica com os melhores guerreiros Z.',
-      game: 'Dragon Ball FighterZ',
-      date_start: '2025-09-10',
-      created_at: '2025-07-20T11:30:00Z',
-      owner: { username: 'fighting_fan', id: 5 },
-      participants_count: 20,
-      public: true,
-      value: 600.00,
-      server_discord: 'https://discord.gg/example5'
+ useEffect(() => {
+  const loadTournaments = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:8000/api/v1/torneios/', {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+        },
+        params: { public: true }
+      });
+      
+      setTournaments(response.data);
+      setFilteredTournaments(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar torneios:', error);
     }
-  ];
+    setLoading(false);
+  };
 
-  useEffect(() => {
-    const loadTournaments = async () => {
-      setLoading(true);
-      try {
-        // Aqui você fará a chamada real para sua API
-        // const response = await axios.get('http://localhost:8000/api/v1/tournaments/', {
-        //   headers: {
-        //     'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-        //   },
-        //   params: { public: true }
-        // });
-        // setTournaments(response.data);
-        
-        // Por enquanto, simulando delay da API
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setTournaments(mockTournaments);
-        setFilteredTournaments(mockTournaments);
-      } catch (error) {
-        console.error('Erro ao carregar torneios:', error);
-      }
-      setLoading(false);
-    };
-
-    loadTournaments();
-  }, []);
+  loadTournaments();
+}, []);
 
   // Filtrar torneios baseado nos critérios
   useEffect(() => {
@@ -149,30 +76,37 @@ const TournamentSearchPage = () => {
     }).format(value);
   };
 
-  const handleJoinTournament = async (tournamentId) => {
-    try {
-      // Aqui seria feita a chamada para a API endpoint 'inscrever'
-      // const response = await axios.post(
-      //   `http://localhost:8000/api/v1/tournaments/${tournamentId}/inscrever/`,
-      //   {},
-      //   {
-      //     headers: {
-      //       'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-      //     }
-      //   }
-      // );
-      
-      console.log(`Inscrevendo no torneio ${tournamentId}`);
-      alert('Inscrição realizada com sucesso!');
-    } catch (error) {
-      console.error('Erro ao se inscrever no torneio:', error);
-      if (error.response?.data?.detail) {
-        alert(error.response.data.detail);
-      } else {
-        alert('Erro ao se inscrever no torneio');
+const handleJoinTournament = async (tournamentId) => {
+  try {
+    await axios.post(
+      `http://localhost:8000/api/v1/torneios/${tournamentId}/join/`,
+      {},
+      {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+        }
       }
+    );
+    
+    alert('Inscrição realizada com sucesso!');
+    // Atualiza a lista de torneios
+    const updatedTournaments = tournaments.map(t => {
+      if (t.id === tournamentId) {
+        return { ...t, is_participant: true };
+      }
+      return t;
+    });
+    setTournaments(updatedTournaments);
+    setFilteredTournaments(updatedTournaments);
+  } catch (error) {
+    console.error('Erro ao se inscrever no torneio:', error);
+    if (error.response?.data?.detail) {
+      alert(error.response.data.detail);
+    } else {
+      alert('Erro ao se inscrever no torneio');
     }
-  };
+  }
+};
 
   if (loading) {
     return (
@@ -307,7 +241,7 @@ const TournamentSearchPage = () => {
                     {tournament.value > 0 && (
                       <div className="flex items-center text-sm text-green-500 font-medium">
                         <DollarSign className="h-4 w-4 mr-2" />
-                        Premiação: {formatValue(tournament.value)}
+                        Taxa de inscrição: {formatValue(tournament.value)}
                       </div>
                     )}
                   </div>

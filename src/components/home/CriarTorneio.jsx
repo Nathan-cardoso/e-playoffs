@@ -15,10 +15,11 @@ function CriarTorneio() {
     server_discord: '',
     public: true
   });
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // Opções de jogos baseadas no modelo Django
   const gameOptions = [
     'League of Legends',
     'CS:GO', 
@@ -33,8 +34,7 @@ function CriarTorneio() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
-    // Limpar erro específico quando o usuário começar a digitar
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -60,7 +60,7 @@ function CriarTorneio() {
       const selectedDate = new Date(formData.date_start);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       if (selectedDate < today) {
         newErrors.date_start = 'Data de início deve ser hoje ou no futuro';
       }
@@ -84,15 +84,14 @@ function CriarTorneio() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setLoading(true);
-    
+
     try {
-      // Preparar dados para envio - ajustar campos vazios
       const dataToSend = {
         ...formData,
         description: formData.description.trim() || null,
@@ -100,22 +99,20 @@ function CriarTorneio() {
         value: parseFloat(formData.value)
       };
 
-      const response = await axios.post('http://localhost:8000/api/v1/tournaments/', dataToSend, {
+      await axios.post('http://localhost:8000/api/v1/torneios/', dataToSend, {
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
           'Content-Type': 'application/json'
         }
       });
 
-      console.log('Torneio criado:', response.data);
-      
-      // Redirecionar para página de torneios ou mostrar mensagem de sucesso
-      navigate('/torneios');
+      setSuccessMessage('Torneio criado com sucesso!');
+      handleReset();
+
     } catch (error) {
       console.error('Erro ao criar torneio:', error);
-      
+
       if (error.response?.data) {
-        // Se a API retornar erros específicos por campo
         if (typeof error.response.data === 'object') {
           setErrors(error.response.data);
         } else {
@@ -149,6 +146,7 @@ function CriarTorneio() {
         <NavBar />
         <main className="flex-1 p-6 overflow-auto">
           <div className="max-w-4xl mx-auto">
+
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold text-white">Criar Torneio</h1>
               <button
@@ -162,7 +160,12 @@ function CriarTorneio() {
               </button>
             </div>
 
-            {/* Mensagem de erro geral */}
+            {successMessage && (
+              <div className="bg-green-900/20 border border-green-500 text-green-400 px-4 py-3 rounded-lg mb-6">
+                {successMessage}
+              </div>
+            )}
+
             {errors.general && (
               <div className="bg-red-900/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-6">
                 {errors.general}
@@ -170,10 +173,8 @@ function CriarTorneio() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Informações Básicas */}
               <div className="bg-[#101010] border border-gray-800 rounded-lg p-6">
                 <h2 className="text-xl font-semibold text-white mb-4">Informações Básicas</h2>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-300 text-sm font-medium mb-2">
@@ -229,10 +230,8 @@ function CriarTorneio() {
                 </div>
               </div>
 
-              {/* Configurações do Torneio */}
               <div className="bg-[#101010] border border-gray-800 rounded-lg p-6">
                 <h2 className="text-xl font-semibold text-white mb-4">Configurações</h2>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-300 text-sm font-medium mb-2">
@@ -295,10 +294,8 @@ function CriarTorneio() {
                 </div>
               </div>
 
-              {/* Configurações de Visibilidade */}
               <div className="bg-[#101010] border border-gray-800 rounded-lg p-6">
                 <h2 className="text-xl font-semibold text-white mb-4">Visibilidade</h2>
-                
                 <div className="flex items-start space-x-3">
                   <input
                     type="checkbox"
@@ -320,7 +317,6 @@ function CriarTorneio() {
                 </div>
               </div>
 
-              {/* Botões de Ação */}
               <div className="flex justify-between items-center pt-6">
                 <button
                   type="button"
@@ -330,7 +326,7 @@ function CriarTorneio() {
                 >
                   Limpar
                 </button>
-                
+
                 <div className="flex space-x-3">
                   <button
                     type="button"
@@ -340,7 +336,7 @@ function CriarTorneio() {
                   >
                     Cancelar
                   </button>
-                  
+
                   <button
                     type="submit"
                     disabled={loading}
@@ -358,7 +354,6 @@ function CriarTorneio() {
               </div>
             </form>
 
-            {/* Informações Adicionais */}
             <div className="mt-8 bg-gray-900/50 border border-gray-800 rounded-lg p-4">
               <h3 className="text-sm font-medium text-gray-300 mb-2">
                 ℹ️ Informações Importantes
@@ -371,6 +366,7 @@ function CriarTorneio() {
                 <li>• A data de início deve ser hoje ou no futuro</li>
               </ul>
             </div>
+
           </div>
         </main>
       </div>
