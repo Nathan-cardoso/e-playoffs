@@ -7,6 +7,7 @@ function InicialPage() {
     <div className="bg-black min-h-screen">
       <NavBar />
       <Hero />
+
     </div>
   )
 }

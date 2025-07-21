@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import logo from '../../../public/imgs/logo.png';
 import profile from '../../../public/imgs/avatar-m.png';
@@ -9,80 +11,129 @@ function NavBar() {
     email: '',
     photo: ''
   });
-
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { logout } = useAuth();
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/v1/player/', {
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/v1/player/', {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+          }
+        });
+        
+        setUser({
+          username: response.data.username,
+          email: response.data.email,
+          photo: response.data.photo === null ? profile : response.data.photo
+        });
+      } catch (error) {
+        console.error('Erro ao buscar dados do usuário:', error);
+        if (error.response?.status === 401) {
+          logout();
+        }
       }
-    })
-    .then(response => {
-      setUser({
-        username: response.data.username,
-        email: response.data.email,
-        photo: response.data.photo === null ? profile : response.data.photo
-      });
-    })
-    .catch(error => {
-      console.error('Erro ao buscar dados do usuário:', error);
-    });
-  }, []);
+    };
+
+    fetchUserData();
+  }, [logout]);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
-    <nav className="fixed top-0 z-50 w-full bg-[#121212] border-b border-[#1e1e1e]">
-      <div className="px-3 py-3 lg:px-5 lg:pl-3">
-        <div className="flex items-center justify-between">
-          
+    <nav className="bg-[#101010] border-b border-gray-800">
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <button className="inline-flex items-center p-2 text-sm text-gray-400 rounded-lg sm:hidden hover:bg-[#1e1e1e] focus:outline-none focus:ring-2 focus:ring-gray-600">
-              <span className="sr-only">Open sidebar</span>
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path clipRule="evenodd" fillRule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z" />
+            <button className="text-gray-300 hover:text-white p-2">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <a href="/home" className="flex ms-2 md:me-24 items-center">
-              <img src={logo} className="h-10 me-4" alt="Logo" />
-            </a>
+            <img src={logo} alt="Logo" className="h-10 w-auto ml-4" />
           </div>
 
           <div className="flex items-center">
             <div className="relative">
-              <button onClick={toggleDropdown} type="button" className="w-10 h-10 rounded-full cursor-pointer focus:outline-none">
-                <img src={user.photo} alt="User dropdown" className="w-10 h-10 rounded-full object-cover" />
+              <button
+                onClick={toggleDropdown}
+                className="flex items-center space-x-3 text-white hover:bg-gray-800 p-2 rounded-lg"
+              >
+                <img
+                  src={user.photo || profile}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <span className="hidden md:block">{user.username}</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-44 bg-[#1e1e1e] divide-y divide-gray-600 rounded-lg shadow-lg z-50">
-                  <div className="px-4 py-3 text-sm text-white">
-                    <div>{user.username}</div>
-                    <div className="font-medium truncate text-gray-400">{user.email}</div>
+                <div className="absolute right-0 mt-2 w-64 bg-[#1f1f1f] rounded-lg shadow-lg border border-gray-700 z-50">
+                  <div className="px-4 py-3 border-b border-gray-700">
+                    <p className="text-white font-medium">{user.username}</p>
+                    <p className="text-gray-400 text-sm">{user.email}</p>
                   </div>
-                  <ul className="py-2 text-sm text-gray-300">
-                    <li>
-                      <a href="/home" className="block px-4 py-2 hover:bg-gray-700 hover:text-white">Home</a>
-                    </li>
-                    <li>
-                      <a href="#" className="block px-4 py-2 hover:bg-gray-700 hover:text-white">Profile</a>
-                    </li>
-                    <li>
-                      <a href="#" className="block px-4 py-2 hover:bg-gray-700 hover:text-white"> Criar Torneios</a>
-                    </li>
-                  </ul>
-                  <div className="py-1">
-                    <a href="/logout" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">Sign out</a>
+                  
+                  <div className="py-2">
+                    <Link
+                      to="/home"
+                      className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                      Home
+                    </Link>
+                    
+                    <Link
+                      to="/perfil"
+                      className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      Profile
+                    </Link>
+                    
+                    <Link
+                      to="/criar-torneio"
+                      className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Criar Torneios
+                    </Link>
+                  </div>
+                  
+                  <div className="border-t border-gray-700">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full px-4 py-2 text-red-400 hover:bg-gray-700 hover:text-red-300"
+                    >
+                      <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      Sign out
+                    </button>
                   </div>
                 </div>
               )}
-
             </div>
           </div>
-
         </div>
       </div>
     </nav>

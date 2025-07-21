@@ -7,6 +7,8 @@ import InicialPage from './components/inicialPage/InicialPage';
 import Logout from './components/logout/Logout';
 import PrivateRouter from './components/protect/PrivateRouter';
 import { AuthProvider } from './contexts/AuthContext';
+import Perfil from './components/home/Perfil';
+import CriarTonreio from "./components/home/CriarTorneio"
 
 function App() {
   return (
@@ -27,7 +29,7 @@ function App() {
           } />
           <Route path="/perfil" element={
             <PrivateRouter>
-              <h1>Profile</h1>
+              <Perfil />
             </PrivateRouter>
           } />
           <Route path="/torneios" element={
@@ -37,7 +39,7 @@ function App() {
           } />
           <Route path="/criar-torneio" element={
             <PrivateRouter>
-              <h1>Criar Torneios</h1>
+              <CriarTonreio />
             </PrivateRouter>
           } />
         </Routes>
