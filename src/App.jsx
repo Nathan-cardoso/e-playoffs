@@ -9,6 +9,7 @@ import PrivateRouter from './components/protect/PrivateRouter';
 import { AuthProvider } from './contexts/AuthContext';
 import Perfil from './components/home/Perfil';
 import CriarTonreio from "./components/home/CriarTorneio"
+import Torneios from './components/home/Torneios';
 
 function App() {
   return (
@@ -34,7 +35,7 @@ function App() {
           } />
           <Route path="/torneios" element={
             <PrivateRouter>
-              <h1>Torneios</h1>
+              <Torneios />
             </PrivateRouter>
           } />
           <Route path="/criar-torneio" element={
