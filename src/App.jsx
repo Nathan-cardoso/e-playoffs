@@ -24,24 +24,20 @@ function App() {
           
           {/* Rotas Protegidas */}
           <Route path="/home" element={
-            <PrivateRouter>
               <Home />
-            </PrivateRouter>
+            
           } />
           <Route path="/perfil" element={
-            <PrivateRouter>
               <Perfil />
-            </PrivateRouter>
+            
           } />
           <Route path="/torneios" element={
-            <PrivateRouter>
               <Torneios />
-            </PrivateRouter>
+            
           } />
           <Route path="/criar-torneio" element={
-            <PrivateRouter>
               <CriarTonreio />
-            </PrivateRouter>
+            
           } />
         </Routes>
       </BrowserRouter>
